@@ -14,7 +14,7 @@
 ** limitations under the License.
 */
 
-use crate::registry::{Message, MSG_BROADCAST_ID, MSG_REGISTRY_ID};
+use crate::registry::{MSG_BROADCAST_ID, MSG_REGISTRY_ID, Message};
 
 use log::{error, info};
 
@@ -54,15 +54,10 @@ impl Client {
                             return;
                         }
                         Ok(n) => {
-                            let new_msg = Message::new(self.id, MSG_REGISTRY_ID, &data[0..n]);
-                            if new_msg.is_some() {
-                                incoming_msg = new_msg;
-                            } else {
-                                error!("failed to parse message ({})", self.id);
-                            }
+                            incoming_msg = Some(Message::new(self.id, MSG_REGISTRY_ID, &data[0..n]));
                         }
-                        Err(_) => {
-                            error!("broken connection ({})", self.id);
+                        Err(err) => {
+                            error!("broken connection ({}): {err}", self.id);
                             return;
                         }
                     }
@@ -82,12 +77,14 @@ impl Client {
                 }
             }
 
-            if incoming_msg.is_some() && self.tx.send(incoming_msg.unwrap()).is_err() {
-                error!("failed to register message ({})", self.id);
+            if let Some(incoming_msg) = incoming_msg {
+                if let Err(err) = self.tx.send(incoming_msg) {
+                    error!("failed to register message ({}): {err}", self.id);
+                }
             }
 
-            if outgoing_msg.is_some() {
-                let res_str = outgoing_msg.unwrap().to_string() + "\n";
+            if let Some(outgoing_msg) = outgoing_msg {
+                let res_str = outgoing_msg.to_string() + "\n";
                 self.socket
                     .write_all(res_str.as_bytes())
                     .await

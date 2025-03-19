@@ -34,7 +34,7 @@ use log::info;
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), Box<dyn Error>> {
     if env::var("RUST_LOG").is_err() {
-        env::set_var("RUST_LOG", "info");
+        unsafe { env::set_var("RUST_LOG", "info") };
     }
 
     env_logger::init();

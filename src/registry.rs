@@ -31,12 +31,12 @@ pub struct Message {
 }
 
 impl Message {
-    pub fn new(src_id: u16, dst_id: u16, data: &[u8]) -> Option<Message> {
-        Some(Message {
+    pub fn new(src_id: u16, dst_id: u16, data: &[u8]) -> Message {
+        Message {
             src_id,
             dst_id,
             data: data.to_vec(),
-        })
+        }
     }
 
     pub fn src_id(&self) -> u16 {
@@ -76,8 +76,8 @@ impl Registry {
             dst_id: msg.src_id(),
             data: "ACK".as_bytes().to_vec(),
         };
-        if self.tx.send(res).is_err() {
-            error!("failed to send message");
+        if let Err(err) = self.tx.send(res) {
+            error!("failed to ack message: {err}");
         }
     }
 
@@ -89,8 +89,8 @@ impl Registry {
                 .as_bytes()
                 .to_vec(),
         };
-        if self.tx.send(res).is_err() {
-            error!("failed to send message");
+        if let Err(err) = self.tx.send(res) {
+            error!("failed to send message: {err}");
         }
     }
 
