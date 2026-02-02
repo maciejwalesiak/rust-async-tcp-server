@@ -77,10 +77,10 @@ impl Client {
                 }
             }
 
-            if let Some(incoming_msg) = incoming_msg {
-                if let Err(err) = self.tx.send(incoming_msg) {
-                    error!("failed to register message ({}): {err}", self.id);
-                }
+            if let Some(incoming_msg) = incoming_msg
+                && let Err(err) = self.tx.send(incoming_msg)
+            {
+                error!("failed to register message ({}): {err}", self.id);
             }
 
             if let Some(outgoing_msg) = outgoing_msg {
