@@ -23,7 +23,7 @@ use tokio::sync::broadcast;
 pub const MSG_BROADCAST_ID: u16 = 0xFFFF;
 pub const MSG_REGISTRY_ID: u16 = 0;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Message {
     src_id: u16,
     dst_id: u16,

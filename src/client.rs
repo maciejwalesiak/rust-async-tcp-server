@@ -173,7 +173,7 @@ mod tests {
 
         // Send a message to this specific client
         let test_message = Message::new(MSG_REGISTRY_ID, client_id, b"Response to client");
-        tx.send(test_message).unwrap();
+        assert!(tx.send(test_message).is_ok(), "failed to send message");
 
         // Read from the peer socket
         let mut buffer = vec![0u8; 1024];
@@ -206,7 +206,7 @@ mod tests {
 
         // Send a broadcast message
         let broadcast_msg = Message::new(MSG_REGISTRY_ID, MSG_BROADCAST_ID, b"Broadcast to all");
-        tx.send(broadcast_msg).unwrap();
+        assert!(tx.send(broadcast_msg).is_ok(), "failed to send message");
 
         // Read from the peer socket
         let mut buffer = vec![0u8; 1024];
@@ -240,7 +240,7 @@ mod tests {
 
         // Send a message to a different client
         let other_msg = Message::new(MSG_REGISTRY_ID, other_client_id, b"Not for you");
-        tx.send(other_msg).unwrap();
+        assert!(tx.send(other_msg).is_ok(), "failed to send message");
 
         // Try to read from socket with a short timeout
         let mut buffer = vec![0u8; 1024];
@@ -255,7 +255,7 @@ mod tests {
 
         // Now send a message specifically for this client to verify worker is still running
         let our_msg = Message::new(MSG_REGISTRY_ID, client_id, b"For you");
-        tx.send(our_msg).unwrap();
+        assert!(tx.send(our_msg).is_ok(), "failed to send message");
 
         let n = timeout(Duration::from_secs(1), client_socket.read(&mut buffer))
             .await
@@ -421,7 +421,7 @@ mod tests {
         for i in 0..2 {
             let test_message =
                 Message::new(MSG_REGISTRY_ID, client_id, format!("Msg{}", i).as_bytes());
-            tx.send(test_message).unwrap();
+            assert!(tx.send(test_message).is_ok(), "failed to send message");
 
             let mut buffer = vec![0u8; 1024];
             let n = timeout(Duration::from_secs(1), client_socket.read(&mut buffer))
@@ -458,7 +458,7 @@ mod tests {
             let tx = tx.clone();
             async move {
                 let test_message = Message::new(MSG_REGISTRY_ID, client_id, b"Server message");
-                tx.send(test_message).unwrap();
+                assert!(tx.send(test_message).is_ok(), "failed to send message");
             }
         });
 
