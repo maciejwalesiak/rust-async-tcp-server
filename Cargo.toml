@@ -9,3 +9,6 @@ edition = "2024"
 env_logger = { version = "0.9.0" }
 log = { version = "0.4", features = ["std", "serde"] }
 tokio = { version = "1", features = ["io-util", "macros", "net", "sync", "rt"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
