@@ -99,7 +99,7 @@ mod tests {
     use super::*;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::{TcpListener, TcpStream};
-    use tokio::time::{timeout, Duration};
+    use tokio::time::{Duration, timeout};
 
     async fn create_connected_socket_pair() -> (TcpStream, TcpStream) {
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -244,10 +244,14 @@ mod tests {
 
         // Try to read from socket with a short timeout
         let mut buffer = vec![0u8; 1024];
-        let read_result = timeout(Duration::from_millis(100), client_socket.read(&mut buffer)).await;
+        let read_result =
+            timeout(Duration::from_millis(100), client_socket.read(&mut buffer)).await;
 
         // Should timeout since no message should be sent to this client
-        assert!(read_result.is_err(), "Client should not receive message for other client");
+        assert!(
+            read_result.is_err(),
+            "Client should not receive message for other client"
+        );
 
         // Now send a message specifically for this client to verify worker is still running
         let our_msg = Message::new(MSG_REGISTRY_ID, client_id, b"For you");
@@ -394,7 +398,10 @@ mod tests {
 
         // The worker should exit when the broadcast channel is closed
         let result = timeout(Duration::from_secs(1), client.worker()).await;
-        assert!(result.is_ok(), "Worker should exit when broadcast channel closes");
+        assert!(
+            result.is_ok(),
+            "Worker should exit when broadcast channel closes"
+        );
     }
 
     #[tokio::test]
@@ -412,7 +419,8 @@ mod tests {
 
         // Send multiple messages to verify each ends with newline
         for i in 0..2 {
-            let test_message = Message::new(MSG_REGISTRY_ID, client_id, format!("Msg{}", i).as_bytes());
+            let test_message =
+                Message::new(MSG_REGISTRY_ID, client_id, format!("Msg{}", i).as_bytes());
             tx.send(test_message).unwrap();
 
             let mut buffer = vec![0u8; 1024];
